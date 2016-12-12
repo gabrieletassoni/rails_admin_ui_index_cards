@@ -1,0 +1,6 @@
+it:
+  admin:
+    export:
+      found: Esporta trovati
+    misc:
+      order_by: Ordina per
