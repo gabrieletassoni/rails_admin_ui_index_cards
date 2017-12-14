@@ -4,3 +4,5 @@ en:
       found: Export found
     misc:
       order_by: Order by
+    select:
+      toggle: Toggle Selection

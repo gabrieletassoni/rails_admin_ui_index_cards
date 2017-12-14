@@ -4,3 +4,5 @@ it:
       found: Esporta trovati
     misc:
       order_by: Ordina per
+    select:
+      toggle: Inverti Selezione

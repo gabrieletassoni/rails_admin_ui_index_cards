@@ -65,6 +65,11 @@
       .pull-right{style: "margin-left:0.5em"}
         %a.btn.btn-primary{href: export_path(params.except('set').except('page'))}
           = t("admin.export.found")
+    
+    -unless @objects.blank?
+      .pull-right{style: "margin-left:0.5em"}
+        %a.btn.btn-primary#select-all
+          = t("admin.select.toggle")
 
     = form_tag(index_path(params.except(*%w[page f query])), method: :get, class: "pjax-form form-inline") do
       .input-group
@@ -80,25 +85,28 @@
 
   = form_tag bulk_action_path(model_name: @abstract_model.to_param), method: :post, id: "bulk_form", class: "form" do
     = hidden_field_tag :bulk_action
+    - if description.present?
+      %p
+        %strong= description
 
-  - if description.present?
-    .well.well-sm
-      = description
+    - @objects.each do |object|
+      = render partial: "card", locals: {object: object, properties: properties, sort: sort, sort_reverse: sort_reverse}
 
-  - @objects.each do |object|
-    = render partial: "card", locals: {object: object, properties: properties, sort: sort, sort_reverse: sort_reverse}
-
-  - if @objects.respond_to?(:total_count)
-    - total_count = @objects.total_count.to_i
-    .row
-      .col-md-6= paginate(@objects, theme: 'ra-twitter-bootstrap', remote: true)
-    .row
-      .col-md-6= link_to(t("admin.misc.show_all"), index_path(params.merge(all: true)), class: "show-all btn btn-default clearfix pjax") unless total_count > 100 || total_count <= @objects.to_a.size
-    .clearfix.total-count= "#{total_count} #{@model_config.pluralize(total_count).downcase}"
-  - else
-    .clearfix.total-count= "#{@objects.size} #{@model_config.pluralize(@objects.size).downcase}"
+    - if @objects.respond_to?(:total_count)
+      - total_count = @objects.total_count.to_i
+      .row
+        .col-md-6= paginate(@objects, theme: 'ra-twitter-bootstrap', remote: true)
+      .row
+        .col-md-6= link_to(t("admin.misc.show_all"), index_path(params.merge(all: true)), class: "show-all btn btn-default clearfix pjax") unless total_count > 100 || total_count <= @objects.to_a.size
+      .clearfix.total-count= "#{total_count} #{@model_config.pluralize(total_count).downcase}"
+    - else
+      .clearfix.total-count= "#{@objects.size} #{@model_config.pluralize(@objects.size).downcase}"
 
 :javascript
   jQuery(function($) {
     #{ordered_filter_string}
   });
+  $("#select-all").click(_ => $("input[name='bulk_ids[]']").each((index, chkBox) => {
+    console.log(chkBox);
+    $(chkBox).prop('checked', !$(chkBox).is(':checked'));
+  }));
