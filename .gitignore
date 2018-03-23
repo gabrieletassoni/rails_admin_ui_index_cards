@@ -187,6 +187,8 @@ build-iPhoneSimulator/
 ## File-based project format:
 *.iws
 
+Gemfile.lock
+
 ## Plugin-specific files:
 
 # IntelliJ
