@@ -20,20 +20,28 @@
     = "#list td.#{property.css_class} { max-width: #{property.column_width}px; }"
 #list
   .well.well-sm
-    - if filterable_fields.present?
+    - if filterable_fields.present? || !@model_config.list.scopes.empty?
       .dropdown.pull-right{style: "margin-left:0.5em"}
         %button.btn.btn-primary.dropdown-toggle#dropdownFilters{type: "button", :"data-toggle" => "dropdown", :"aria-haspopup" => "true", :"aria-expanded" => "true"}
           = t('admin.misc.add_filter')
           %b.caret
         %ul.dropdown-menu#filters{:"aria-labelledby" => "dropdownFilters"}
-          - filterable_fields.each do |field|
-            - field_options = case field.type
-            - when :enum
-              - options_for_select(field.with(object: @abstract_model.model.new).enum)
-            - else
-              - ''
+          - if filterable_fields.present?
+            - filterable_fields.each do |field|
+              - field_options = case field.type
+              - when :enum
+                - options_for_select(field.with(object: @abstract_model.model.new).enum)
+              - else
+                - ''
+              %li
+                %a{href: '#', :"data-field-label" => field.label, :"data-field-name" => field.name, :"data-field-options" => field_options.html_safe, :"data-field-type" => field.type, :"data-field-value" => "", :"data-field-datetimepicker-format" => (field.try(:parser) && field.parser.to_momentjs)}= capitalize_first_letter(field.label)
+          - if !@model_config.list.scopes.empty?
             %li
-              %a{href: '#', :"data-field-label" => field.label, :"data-field-name" => field.name, :"data-field-options" => field_options.html_safe, :"data-field-type" => field.type, :"data-field-value" => "", :"data-field-datetimepicker-format" => (field.try(:parser) && field.parser.to_momentjs)}= capitalize_first_letter(field.label)
+              %a{href: '#'}= "--"
+            - @model_config.list.scopes.each_with_index do |scope, index|
+              - scope = '_all' if scope.nil?
+              %li{class: "#{'active' if scope.to_s == params[:scope] || (params[:scope].blank? && index == 0)}"}
+                %a{href: index_path(params.merge(scope: scope, page: nil)), class: 'pjax'}= I18n.t("admin.scopes.#{@abstract_model.to_param}.#{scope}", default: I18n.t("admin.scopes.#{scope}", default: scope.to_s.titleize))
 
     .dropdown.pull-right{style: "margin-left:0.5em"}
       %button.btn.btn-primary.dropdown-toggle#dropdownOrder{type: "button", :"data-toggle" => "dropdown", :"aria-haspopup" => "true", :"aria-expanded" => "true"}
@@ -50,21 +58,11 @@
               %span{class: "fa fa-#{sort_direction}"}
               = capitalize_first_letter(property.label)
 
-    - unless @model_config.list.scopes.empty?
-      .dropdown.pull-right{style: "margin-left:0.5em"}
-        %button.btn.btn-primary.dropdown-toggle#dropdownScopes{type: "button", :"data-toggle" => "dropdown", :"aria-haspopup" => "true", :"aria-expanded" => "true"}
-          = t('admin.misc.scopes')
-          %b.caret
-        %ul.dropdown-menu{:"aria-labelledby" => "dropdownScopes"}
-          - @model_config.list.scopes.each_with_index do |scope, index|
-            - scope = '_all' if scope.nil?
-            %li{class: "#{'active' if scope.to_s == params[:scope] || (params[:scope].blank? && index == 0)}"}
-              %a{href: index_path(params.merge(scope: scope, page: nil)), class: 'pjax'}= I18n.t("admin.scopes.#{@abstract_model.to_param}.#{scope}", default: I18n.t("admin.scopes.#{scope}", default: scope.to_s.titleize))
-
-    - if export_action
-      .pull-right{style: "margin-left:0.5em"}
-        %a.btn.btn-primary{href: export_path(params.except('set').except('page'))}
-          = t("admin.export.found")
+    -# Secondo me non serve perchè abbiamo già diversi export
+    -# - if export_action
+    -#   .pull-right{style: "margin-left:0.5em"}
+    -#     %a.btn.btn-primary{href: export_path(params.except('set').except('page'))}
+    -#       = t("admin.export.found")
     
     -unless @objects.blank?
       .pull-right{style: "margin-left:0.5em"}
