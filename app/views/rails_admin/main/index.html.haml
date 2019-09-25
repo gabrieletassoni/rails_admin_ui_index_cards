@@ -58,7 +58,7 @@
               %span{class: "fa fa-#{sort_direction}"}
               = capitalize_first_letter(property.label)
 
-    -# Secondo me non serve perchè abbiamo già diversi export
+    -# -# Export filtered
     -# - if export_action
     -#   .pull-right{style: "margin-left:0.5em"}
     -#     %a.btn.btn-primary{href: export_path(params.except('set').except('page'))}
@@ -75,9 +75,10 @@
         %span.input-group-btn
           %button.btn.btn-primary{type: 'submit', :'data-disable-with' => '<i class="icon-white icon-refresh"></i> '.html_safe + t('admin.misc.refresh')}
             %i.icon-white.icon-refresh
-            = t('admin.misc.refresh')
           %button#remove_filter.btn.btn-info{title: "Reset filters"}
             %i.icon-white.icon-remove
+          %a.btn.btn-primary{href: export_path(params.except('set').except('page')), style: "margin-left:0.5em"}
+            %i.icon-white.icon-share
       %hr.filters_box{style: "display:#{ordered_filters.empty? ? 'none' : 'block'}"}
       %span#filters_box
 

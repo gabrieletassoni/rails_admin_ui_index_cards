@@ -1,3 +1,3 @@
 module RailsAdminUiIndexCards
-  VERSION = '1.1.7'.freeze
+  VERSION = '1.1.10'.freeze
 end
